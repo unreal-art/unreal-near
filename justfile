@@ -13,3 +13,10 @@ import "local.justfile"
 
 deploy: 
   cargo near deploy build-non-reproducible-wasm {{NEAR_WALLET}} with-init-call new text-args "{}" prepaid-gas "100.0 Tgas" attached-deposit "0 NEAR" network-config testnet sign-with-seed-phrase "{{NEAR_WALLET_SEED}}" 
+
+
+deploy-token:
+  cargo near deploy build-non-reproducible-wasm token.unrealai.testnet with-init-call new text-args "{}" prepaid-gas "100.0 Tgas" attached-deposit "0 NEAR" network-config testnet sign-with-seed-phrase "{{NEAR_WALLET_SEED}}"
+
+deploy-htlc:
+  cargo near deploy build-non-reproducible-wasm htlc.unrealai.testnet with-init-call new text-args "{}" prepaid-gas "100.0 Tgas" attached-deposit "0 NEAR" network-config testnet sign-with-seed-phrase "{{NEAR_WALLET_SEED}}"
