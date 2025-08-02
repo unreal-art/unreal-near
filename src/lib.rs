@@ -48,21 +48,23 @@ pub struct FungibleTokenMetadata {
 
 #[near_bindgen]
 impl UnrealToken {
-    /// Initializes the contract with name, symbol, and decimals
+    /// Initializes the contract with hardcoded values
     #[init]
-    pub fn new(
-        name: String, 
-        symbol: String, 
-        decimals: u8,
-        initial_supply: U128
-    ) -> Self {
+    pub fn new() -> Self {
         // Ensure contract is not initialized yet
         assert!(!env::state_exists(), "Contract is already initialized");
+        
+        // Hardcoded values
+        let name = "Unreal Token".to_string();
+        let symbol = "UNREAL".to_string();
+        let decimals = 18u8; // Standard for most tokens
+        let initial_supply = 250_000_000_000_000_000_000_000_000u128; // 250M with 18 decimals
+        
         let owner_id = env::predecessor_account_id();
         let mut this = Self {
             name: name.clone(),
             symbol: symbol.clone(),
-            total_supply: initial_supply.into(),
+            total_supply: initial_supply,
             decimals,
             owner_id: owner_id.clone(),
             paused: false,
@@ -79,8 +81,8 @@ impl UnrealToken {
         };
         
         // Mint the initial supply to the contract owner
-        this.internal_deposit(&owner_id, initial_supply.into());
-        log!("Initialized token with {} supply to {}", initial_supply.0, owner_id);
+        this.internal_deposit(&owner_id, initial_supply);
+        log!("Initialized Unreal Token with 250,000,000 supply to {}", owner_id);
         
         this
     }

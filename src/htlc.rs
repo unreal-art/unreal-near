@@ -82,8 +82,11 @@ pub struct UnrealHTLC {
 #[near_bindgen]
 impl UnrealHTLC {
     #[init]
-    pub fn new(token_account_id: AccountId) -> Self {
+    pub fn new() -> Self {
         require!(!env::state_exists(), "Already initialized");
+        
+        // Hardcoded token account ID for the Unreal Token contract
+        let token_account_id = AccountId::new_unchecked("token.unrealai.near".to_string());
         
         Self {
             token: token_account_id,
