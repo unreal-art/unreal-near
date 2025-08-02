@@ -1,13 +1,15 @@
-use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use near_sdk::borsh::{BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LookupMap, LazyOption};
-use near_sdk::{env, near_bindgen, AccountId, Balance, PanicOnDefault, Promise, StorageUsage, Gas, log};
+use near_sdk::{env, near_bindgen, AccountId, PanicOnDefault, Gas, log};
 use near_sdk::json_types::U128;
 use std::collections::HashMap;
 
+type Balance = u128;
+
 /// Constants for gas and storage
 const TGAS: u64 = 1_000_000_000_000;
-const GAS_FOR_FT_TRANSFER: Gas = Gas(5 * TGAS);
-const GAS_FOR_RESOLVE_TRANSFER: Gas = Gas(10 * TGAS);
+const GAS_FOR_FT_TRANSFER: Gas = Gas::from_tgas(5);
+const GAS_FOR_RESOLVE_TRANSFER: Gas = Gas::from_tgas(10);
 /// Initial balance for the FT contract itself
 const CONTRACT_STORAGE_COST: Balance = 10_000_000_000_000_000_000_000; // 0.01 NEAR
 

@@ -2,8 +2,54 @@ use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LookupMap, UnorderedMap};
 use near_sdk::json_types::U128;
 use near_sdk::{env, near_bindgen, AccountId, Balance, PanicOnDefault, Promise, CryptoHash, log, require};
-use near_chain_ids::{NetworkId, ChainId};
 use std::str::FromStr;
+
+// Define our own chain ID types for 1inch fusion integration
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum NetworkId {
+    Mainnet,
+    Testnet,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ChainId {
+    pub network_id: NetworkId,
+    pub chain_id: u64,
+}
+
+impl ChainId {
+    pub fn new(network_id: NetworkId, chain_id: u64) -> Self {
+        Self { network_id, chain_id }
+    }
+    
+    pub fn ethereum_mainnet() -> Self {
+        Self {
+            network_id: NetworkId::Mainnet,
+            chain_id: 1,
+        }
+    }
+    
+    pub fn ethereum_sepolia() -> Self {
+        Self {
+            network_id: NetworkId::Testnet,
+            chain_id: 11155111,
+        }
+    }
+    
+    pub fn near_mainnet() -> Self {
+        Self {
+            network_id: NetworkId::Mainnet,
+            chain_id: 0,
+        }
+    }
+    
+    pub fn near_testnet() -> Self {
+        Self {
+            network_id: NetworkId::Testnet,
+            chain_id: 0,
+        }
+    }
+}
 
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct LockContract {
@@ -285,7 +331,7 @@ impl UnrealHTLC {
             None,
             self.token.clone(),
             1,  // yoctoNEAR deposit for storage
-            env::prepaid_gas() - Gas::ONE_TERA * 5  // gas for the mint
+            env::prepaid_gas() - Gas::from_tgas(5)  // gas for the mint
         );
         
         log!(
@@ -300,8 +346,8 @@ impl UnrealHTLC {
         true
     }
     
-    /// Chain Signatures: Execute an EVM transaction from NEAR
-    /// This function allows executing a cross-chain operation from NEAR to EVM chains
+    /// 1inch Fusion: Execute an EVM transaction from NEAR using 1inch Fusion
+    /// This function allows executing a cross-chain swap operation from NEAR to EVM chains
     pub fn execute_on_evm(
         &mut self,
         evm_chain_id: String,
@@ -309,21 +355,48 @@ impl UnrealHTLC {
         calldata: String,
         gas_limit: U128,
     ) -> Promise {
-        self.assert_owner();
+        // Only relayers or owner can call this function
+        let caller = env::predecessor_account_id();
+        require!(
+            self.is_relayer(&caller) || caller == self.owner_id,
+            "Only relayers or owner can execute cross-chain operations"
+        );
         
-        // Here we would integrate with NEAR Chain Signatures to execute this transaction
-        // For now, this is a placeholder that logs the intent
+        // Parse the EVM chain ID to ensure it's valid
+        let chain_id = match evm_chain_id.parse::<u64>() {
+            Ok(id) => id,
+            Err(_) => env::panic_str("Invalid EVM chain ID format")
+        };
+        
+        // Validate the contract address format (should be a hex address for EVM)
+        if !contract_address.starts_with("0x") || contract_address.len() != 42 {
+            env::panic_str("Invalid EVM contract address format");
+        }
+        
+        // 1inch Fusion requires calldata to be properly formatted for their resolver contracts
+        if calldata.is_empty() {
+            env::panic_str("Calldata cannot be empty");
+        }
+        
         log!(
-            "Chain Signatures: Executing transaction on EVM chain {}, contract: {}, gas: {}",
-            evm_chain_id,
+            "1inch Fusion: Executing swap on EVM chain {}, contract: {}, gas: {}",
+            chain_id,
             contract_address,
             gas_limit.0
         );
         
-        // In a real implementation, we would return a Promise that calls the Chain Signatures contract
-        // with the appropriate parameters to execute the cross-chain operation
+        // In production, this would integrate with a cross-chain messaging protocol
+        // to actually execute the transaction on the EVM chain
         
-        // This is a mock Promise that just returns a success indicator
+        // Log the 1inch Fusion cross-chain swap details
+        log!("1inch Fusion Cross-Chain Swap Details:");
+        log!("  From: NEAR ({})", env::current_account_id());
+        log!("  To: EVM Chain {}", chain_id);
+        log!("  Target: {}", contract_address);
+        log!("  Gas Limit: {}", gas_limit.0);
+        log!("  Calldata Length: {}", calldata.len());
+        
+        // Return a mock Promise - in production, this would call a bridge contract
         Promise::new(env::current_account_id())
     }
 
@@ -372,11 +445,8 @@ pub struct LockContractView {
 // Define the Gas constants
 const ONE_TERA: u64 = 1_000_000_000_000;
 
-pub struct Gas(pub u64);
-
-impl Gas {
-    pub const ONE_TERA: Gas = Gas(ONE_TERA);
-}
+// Use the Gas struct from near_sdk instead of defining our own
+// This ensures compatibility with the SDK
 
 // External contract interfaces
 
