@@ -27,7 +27,8 @@ _deploy account_id="{{NEAR_WALLET}}":
       attached-deposit "{{DEPOSIT}}" \
       network-config {{NETWORK}} \
       sign-with-seed-phrase "{{NEAR_WALLET_SEED}}" \
-      --seed-phrase-hd-path "m/44'/397'/0'"
+      --seed-phrase-hd-path "m/44'/397'/0'" \
+      send
 
 login: 
     @echo "Logging in..."
