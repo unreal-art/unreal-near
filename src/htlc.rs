@@ -86,6 +86,7 @@ impl UnrealHTLC {
         require!(!env::state_exists(), "Already initialized");
         
         // Hardcoded token account ID for the Unreal Token contract
+        //TODO: refactor lator on to init arg
         let token_account_id = AccountId::new_unchecked("token.unrealai.near".to_string());
         
         Self {

@@ -8,7 +8,7 @@ NEAR_WALLET := env("NEAR_WALLET")
 NEAR_WALLET_SEED := env("NEAR_WALLET_SEED")
 NETWORK := env_var_or_default("NEAR_NETWORK", "testnet")
 GAS := env_var_or_default("NEAR_GAS", "100.0 Tgas")
-DEPOSIT := env_var_or_default("NEAR_DEPOSIT", "1 NEAR")
+DEPOSIT := env_var_or_default("NEAR_DEPOSIT", "0 NEAR")
 
 # Subaccounts
 TOKEN_ACCOUNT := "token." + NEAR_WALLET
