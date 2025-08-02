@@ -60,3 +60,7 @@ states:
     near state {{NEAR_WALLET}}
     near state {{TOKEN_ACCOUNT}}
     near state {{HTLC_ACCOUNT}}
+
+send account_id amt="1": 
+    @echo "Sending NEAR to {{account_id}}..."
+    near send {{NEAR_WALLET}} {{account_id}} {{amt}} --networkId testnet
