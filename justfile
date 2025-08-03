@@ -44,7 +44,16 @@ deploy-token:
 
 # Deploy HTLC contract to htlc subaccount
 deploy-htlc:
-    @just _deploy "{{HTLC_ACCOUNT}}"
+    @echo "Deploying HTLC contract..."
+    cargo near deploy build-non-reproducible-wasm "{{HTLC_ACCOUNT}}" \
+      with-init-call new text-args "{}" \
+      --path src/htlc.rs \
+      prepaid-gas "{{GAS}}" \
+      attached-deposit "{{DEPOSIT}}" \
+      network-config {{NETWORK}} \
+      sign-with-seed-phrase "{{NEAR_WALLET_SEED}}" \
+      --seed-phrase-hd-path "m/44'/397'/0'" \
+      send
 
 # Create subaccounts if needed
 create-subaccounts:
